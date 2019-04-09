@@ -24,8 +24,10 @@ def scrape_fangraphs_leaders(stats_type, year = 2019, data_type = 'Dashboard', a
     :param int year: The year of the data being scraped
     :return: DataFrame of scraped data table
     ''' 
-#    stats_type = 'pit'
+#    stats_type = 'bat'
 #    data_type = 'Advanced'
+#    agg_type = 'Player'
+#    year = 2019
     data_type_dict = dict([
                 ("Dashboard", 8),
                 ("Standard", 0),
@@ -90,12 +92,14 @@ def scrape_fangraphs_leaders(stats_type, year = 2019, data_type = 'Dashboard', a
                 df[column] = df[column].astype(float)
             except: # if value is null
                 df[column] = df[column].replace('&nbsp', np.nan)
+                df[column] = df[column].replace('-', np.nan)
+                df[column] = df[column].replace('', np.nan)
                 df[column] = df[column].astype(float)
     # Fin
     return df
 
 
-df = scrape_fangraphs_leaders('bat', data_type = 'Batted Ball', agg_type = 'Team')
+df = scrape_fangraphs_leaders('bat', data_type = 'Advanced')
 
 
 
