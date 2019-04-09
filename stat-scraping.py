@@ -7,7 +7,11 @@ stat-scraping
 """
 
 import requests
-from BeautifulSoup import BeautifulSoup
+import sys
+if sys.platform == 'win32':
+    from BeautifulSoup import BeautifulSoup
+else:
+    from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
     
