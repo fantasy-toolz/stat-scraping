@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
     
 
-def scrape_fangraphs(stats_type, year = 2019, data_type = 'Dashboard'):
+def scrape_fangraphs_leaders(stats_type, year = 2019, data_type = 'Dashboard', agg_type='Player'):
     '''
     Scrape baseball stats from Fangraphs
     :param str stats_type: The type of stat ('pit', 'bat', 'fld') being scraped
@@ -20,6 +20,7 @@ def scrape_fangraphs(stats_type, year = 2019, data_type = 'Dashboard'):
                                                     "Win Probability", "Pitch Type", "Pitch Value", "Plate Discipline",
                                                     "Value", "Pitch Info - Pitch Type", "Pitch Info - Velocity","Pitch Info - H-Movement", "Pitch Info - V-Movement",
                                                     "Pitch Info - Pitch Type Value", "Pitch Info - Pitch Type Value/100", "Pitch Info - Plate Discipline") 
+    : param str agg_type: The aggregation level of stat being scraped ('Player', 'Team', 'League)
     :param int year: The year of the data being scraped
     :return: DataFrame of scraped data table
     ''' 
@@ -44,8 +45,14 @@ def scrape_fangraphs(stats_type, year = 2019, data_type = 'Dashboard'):
                 ("Pitch Info - Plate Discipline", 22)
         ]
     )
+    agg_type_dict = dict([
+            ('Player', ''),
+            ('Team', ',ts'),
+            ('League', ',ss')
+            ]
+    )
     # Define the webpage of interest
-    url             = "https://www.fangraphs.com/leaders.aspx?pos=all&stats={0}&lg=all&qual=0&type={1}&season={2}&month=0&season1={2}&ind=0&team=0&rost=0&age=0&filter=&players=0&page=1_10000".format(stats_type, data_type_dict[data_type], year)
+    url             = "https://www.fangraphs.com/leaders.aspx?pos=all&stats={0}&lg=all&qual=0&type={1}&season={2}&month=0&season1={2}&ind=0&team=0{3}&rost=0&age=0&filter=&players=0&page=1_10000".format(stats_type, data_type_dict[data_type], year, agg_type_dict[agg_type])
     # Pull the information
     r               = requests.get(url.format(year))
     soup            = BeautifulSoup(r.content)
@@ -62,10 +69,19 @@ def scrape_fangraphs(stats_type, year = 2019, data_type = 'Dashboard'):
             rows.append(sav2)
     # Convert the List of Lists into a DataFrame
     df = pd.DataFrame(rows, columns=headers)
-    # Query out non-player values
-    df = df[df['Name'] == df['Name']]
+    # Query out non-value rows and set string column count for column formatting
+    if agg_type == 'Player':
+        df = df[df['Name'] == df['Name']]
+        str_columns = 3
+    elif agg_type == 'Team':
+        df = df[df['Team'] == df['Team']]
+        str_columns = 2
+    else:
+        df = df[df['Season'] == df['Season']]
+        str_columns = 2
+        
     # Cleanup field data stypes
-    for column in df.columns[3:]:
+    for column in df.columns[str_columns:]:
         try:
             df[column] = df[column].astype(float)
         except: 
@@ -79,7 +95,7 @@ def scrape_fangraphs(stats_type, year = 2019, data_type = 'Dashboard'):
     return df
 
 
-df = scrape_fangraphs('bat', data_type = 'Batted Ball')
+df = scrape_fangraphs_leaders('bat', data_type = 'Batted Ball', agg_type = 'Team')
 
 
 
