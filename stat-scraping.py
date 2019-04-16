@@ -16,7 +16,7 @@ import pandas as pd
 import numpy as np
     
 
-def scrape_fangraphs_leaders(stats_type, year = 2019, data_type = 'Dashboard', agg_type='Player'):
+def scrape_fangraphs_leaders(stats_type, year = 2019, data_type = 'Standard', agg_type='Player'):
     '''
     Scrape baseball stats from Fangraphs
     :param str stats_type: The type of stat ('pit', 'bat', 'fld') being scraped
@@ -103,11 +103,10 @@ def scrape_fangraphs_leaders(stats_type, year = 2019, data_type = 'Dashboard', a
     return df
 
 
-df = scrape_fangraphs_leaders('bat', data_type = 'Advanced')
 
 
 
-
+#df = scrape_fangraphs_leaders('bat', data_type = 'Advanced')
 
 
 
