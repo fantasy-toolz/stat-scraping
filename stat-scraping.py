@@ -102,9 +102,89 @@ def scrape_fangraphs_leaders(stats_type, year = 2019, data_type = 'Standard', ag
     # Fin
     return df
 
+def update_statcast_player_id(player_type):
+    '''
+    Scrape baseball player ids from Statcast
+    :param str player_type: The type of player ('pitcher', 'batter') being scraped
+    :
+    :return: null
+    :action: overwrite player id dictionary csv
+    :
+    ''' 
+    player_df = pd.DataFrame({'player_name' : ['nobody'], player_type : [-9999]})
+    
+    teams = [
+            'LAA', 'HOU', 'OAK', 'TOR', 'ATL', 'MIL', 'STL', 
+            'CHC', 'ARI', 'LAD', 'SF', 'CLE', 'SEA', 'MIA', 
+            'NYM', 'WSH', 'BAL', 'SD', 'PHI', 'PIT', 'TEX', 
+            'TB', 'BOS', 'CIN', 'COL', 'KC', 'DET', 'MIN', 
+            'CWS', 'NYY'
+            ]
 
+    
+    for team in teams:
+    
+        link = 'https://baseballsavant.mlb.com/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=&hfC=&hfSea=2019%7C&hfSit=&player_type={0}&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt=&game_date_lt=&team={1}&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name-event&sort_col=pitches&player_event_sort=api_p_release_speed&sort_order=desc&min_abs=0&type=details&'.format(player_type, team)
+        df = pd.read_csv(link, low_memory=False)
+            
+        df = df.groupby(['player_name'], as_index=False)[player_type].first()
+        df['Team'] = team
+        player_df = pd.concat([player_df, df])
+        
+    player_df = player_df.loc[(player_df['Team'] == player_df['Team'])]
+    
+    player_df.to_csv('{0}_dict.csv'.format(player_type), index = False)
+    
+def scrape_statcast_fromlist(in_list, player_type):
+    '''
+    Scrape baseball Statcast data for a list of players
+    :param list in_list: A list of players (str) to be scraped
+    :param str player_type: The type of player ('pitcher', 'batter') being scraped
+    :
+    :return: a dictionary of dataframes for each player where each in_list player is a key
+    :
+    ''' 
+    # Pick link type or throw warning
+    if player_type == 'batter':
+        print "Batter scraping pending"
+        skip_scrape = True
+    elif player_type == 'pitcher':
+        link_template = 'https://baseballsavant.mlb.com/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7C&hfC=&hfSea=2019%7C&hfSit=&player_type={0}&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt=&game_date_lt=&team=&position=&hfRO=&home_road=&hfFlag=&pitchers_lookup%5B%5D={1}&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&'
+        skip_scrape = False
+    else:
+        print "Invalid 'player_type' choose between 'batter' and 'pitcher'"
+        skip_scrape = True
+    # If we made it through the player type warnings...
+    if not skip_scrape:
+        # Create Player Dictionary From CSV
+        try:
+            PlayerDict = {}
+            player_df = pd.read_csv('{0}_dict.csv'.format(player_type))
+            for indx,pname in enumerate(player_df.player_name):
+                PlayerDict[pname] = player_df['{0}'.format(player_type)][indx]
+        except:
+            "Error: Importing Player ID data failed"
+        # Grab data for each player from input list and shove into a dictionary
+        BPDict = {}
+        for player in in_list:
+            try:
+                link = link_template.format(player_type, PlayerDict[player])
+                BPDict[player] = pd.read_csv(link, low_memory=False)
+            except:
+                print 'Error: {0} is an invalid Player Name. Try updating player keys.'.format(player)
+    return BPDict
 
+#update_statcast_player_id('pitcher')
+#update_statcast_player_id('batter')
 
+in_list = [
+        'Justin Verlander', 'Cole Hamels',
+        'James Paxton','Clayton Kershaw',
+        'Julio Teheran','Sonny Gray',
+        'Max Scherzer','Chris Sale',
+        'Corey Kluber','Gerrit Cole'
+                         ]
+test_dict = scrape_statcast_fromlist(in_list, 'pitcher')
 
 #df = scrape_fangraphs_leaders('bat', data_type = 'Advanced')
 
