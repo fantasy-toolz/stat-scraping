@@ -141,9 +141,11 @@ def scrape_statcast_fromlist(in_list, player_type):
     :param list in_list: A list of players (str) to be scraped
     :param str player_type: The type of player ('pitcher', 'batter') being scraped
     :
-    :return: a dictionary of dataframes for each player where each in_list player is a key
+    :return: a dataframe with data for all players from in_list 
     :
     ''' 
+    # Cleanup list to ensure no repeated players
+    in_list = list(set(in_list))
     # Pick link type or throw warning
     if player_type == 'batter':
         print "Batter scraping pending"
@@ -164,15 +166,21 @@ def scrape_statcast_fromlist(in_list, player_type):
                 PlayerDict[pname] = player_df['{0}'.format(player_type)][indx]
         except:
             "Error: Importing Player ID data failed"
-        # Grab data for each player from input list and shove into a dictionary
-        BPDict = {}
+        # Grab data for each player from input list and shove into a list of dataframes
+        bp_dfs = []
         for player in in_list:
             try:
                 link = link_template.format(player_type, PlayerDict[player])
-                BPDict[player] = pd.read_csv(link, low_memory=False)
+                df = pd.read_csv(link, low_memory=False)
+                bp_dfs.append(df)
             except:
                 print 'Error: {0} is an invalid Player Name. Try updating player keys.'.format(player)
-    return BPDict
+        # Combine all dataframes from list of dataframes
+        output_df = bp_dfs[0]
+        if len(bp_dfs) >1:
+            for df in bp_dfs[1:]:
+                output_df = pd.concat([output_df, df])
+    return output_df
 
 #update_statcast_player_id('pitcher')
 #update_statcast_player_id('batter')
@@ -182,9 +190,11 @@ in_list = [
         'James Paxton','Clayton Kershaw',
         'Julio Teheran','Sonny Gray',
         'Max Scherzer','Chris Sale',
-        'Corey Kluber','Gerrit Cole'
+        'Corey Kluber','Gerrit Cole',
+        'Justin Verlander'
+        
                          ]
-test_dict = scrape_statcast_fromlist(in_list, 'pitcher')
+test_df = scrape_statcast_fromlist(in_list, 'pitcher')
 
 #df = scrape_fangraphs_leaders('bat', data_type = 'Advanced')
 
