@@ -23,6 +23,7 @@ for row in table_data.findAll("tr"):
 # Create DF from overall rankings
 overall_ranks_df = pd.DataFrame(rows, columns=headers)
 
+### Create Eligibility DF
 def get_eligibility(in_positions, in_player):
     in_positions, in_player = position, row['PlayerTeamPosition']
     position_dict = {
@@ -31,6 +32,13 @@ def get_eligibility(in_positions, in_player):
     
     for i in in_positions:
         position_dict[i]= 1
+        if i in ['RP', 'SP']:
+            position_dict['pit'] = 1
+        if i in ['C', '3B', '2B', 'SS', '1B', 'CF', 'LF', 'OF', 'DH', 'RF']:
+            position_dict['bat'] = 1
+        if i in ['CF', 'LF', 'RF', 'OF']:
+            position_dict['OF'] = 1
+            
     pos_df = pd.DataFrame(position_dict, index=[in_player])
     pos_df['PlayerTeamPosition'] = pos_df.index
     return pos_df
@@ -63,8 +71,34 @@ elig_df = player_list[0]
 for i in player_list[1:]:
     elig_df = pd.concat([elig_df, i])
 
-
-
+overall_ranks_df = overall_ranks_df.merge(elig_df, how='left', on='PlayerTeamPosition')
+overall_ranks_df = overall_ranks_df[[
+    'Rank', 
+    # 'PlayerTeamPosition', 
+    'Player', 
+    'Team', 
+    'Best', 
+    'Worst',
+    'Avg',
+    'StdDev', 
+    'ADP',
+    'vsADP', 
+    # 'Notes', 
+    'pit',
+    'bat'
+    'RP', 
+    'C', 
+    '3B', 
+    '2B', 
+    'SS', 
+    '1B',
+    # 'CF', 
+    # 'LF', 
+    'OF', 
+    # 'DH', 
+    # 'RF', 
+    'SP']
+    ]
 
 
 
