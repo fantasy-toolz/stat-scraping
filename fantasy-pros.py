@@ -3,6 +3,7 @@ import re
 import pandas as pd
 from bs4 import BeautifulSoup
 import requests
+import datetime
                             
 url             = "https://www.fantasypros.com/mlb/rankings/{0}.php"
 r               = requests.get(url.format("overall"))
@@ -82,10 +83,10 @@ overall_ranks_df = overall_ranks_df[[
     'Avg',
     'StdDev', 
     'ADP',
-    'vsADP', 
+    # 'vsADP', 
     # 'Notes', 
     'pit',
-    'bat'
+    'bat',
     'RP', 
     'C', 
     '3B', 
@@ -100,5 +101,10 @@ overall_ranks_df = overall_ranks_df[[
     'SP']
     ]
 
+overall_ranks_df['bat'] = overall_ranks_df['bat'].fillna(0)
+overall_ranks_df['pit'] = overall_ranks_df['pit'].fillna(0)
 
+date_string = format(datetime.datetime.now().strftime('%Y%m%d'), "1")
+out_csv = "fantasy_pros_ranks_elig_{}.csv".format(date_string)
 
+overall_ranks_df.to_csv(out_csv , index = False)
