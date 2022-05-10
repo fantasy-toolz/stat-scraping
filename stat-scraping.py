@@ -187,11 +187,11 @@ def scrape_statcast_fromlist(in_list, player_type):
 
 def get_fantasy_pros_proj(player_type = 'hitters'):
     '''
-    Scrape Fantasy Pros data for a list of players
+    Scrape Fantasy Pros data for rest of season projections and current roster%
     :
     :param str player_type: The type of player ('pitchers', 'hiters') being scraped
     :
-    :return: a dataframe with data for all players from in_list 
+    :return: a dataframe with data for all players
     :
     ''' 
     url = 'https://www.fantasypros.com/mlb/projections/{}.php'
