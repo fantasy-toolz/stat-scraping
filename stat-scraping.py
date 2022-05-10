@@ -14,6 +14,8 @@ else:
     from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
+import re
+
     
 
 def scrape_fangraphs_leaders(stats_type, year = 2019, data_type = 'Standard', agg_type='Player'):
@@ -148,13 +150,13 @@ def scrape_statcast_fromlist(in_list, player_type):
     in_list = list(set(in_list))
     # Pick link type or throw warning
     if player_type == 'batter':
-        print "Batter scraping pending"
+        print("Batter scraping pending")
         skip_scrape = True
     elif player_type == 'pitcher':
         link_template = 'https://baseballsavant.mlb.com/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7C&hfC=&hfSea=2019%7C&hfSit=&player_type={0}&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt=&game_date_lt=&team=&position=&hfRO=&home_road=&hfFlag=&pitchers_lookup%5B%5D={1}&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&'
         skip_scrape = False
     else:
-        print "Invalid 'player_type' choose between 'batter' and 'pitcher'"
+        print("Invalid 'player_type' choose between 'batter' and 'pitcher'")
         skip_scrape = True
     # If we made it through the player type warnings...
     if not skip_scrape:
@@ -174,7 +176,7 @@ def scrape_statcast_fromlist(in_list, player_type):
                 df = pd.read_csv(link, low_memory=False)
                 bp_dfs.append(df)
             except:
-                print 'Error: {0} is an invalid Player Name. Try updating player keys.'.format(player)
+                print('Error: {0} is an invalid Player Name. Try updating player keys.'.format(player))
         # Combine all dataframes from list of dataframes
         output_df = bp_dfs[0]
         if len(bp_dfs) >1:
@@ -182,22 +184,56 @@ def scrape_statcast_fromlist(in_list, player_type):
                 output_df = pd.concat([output_df, df])
     return output_df
 
-#update_statcast_player_id('pitcher')
-#update_statcast_player_id('batter')
 
-in_list = [
-        'Justin Verlander', 'Cole Hamels',
-        'James Paxton','Clayton Kershaw',
-        'Julio Teheran','Sonny Gray',
-        'Max Scherzer','Chris Sale',
-        'Corey Kluber','Gerrit Cole',
-        'Justin Verlander'
+def get_fantasy_pros_proj(player_type = 'hitters'):
+    '''
+    Scrape Fantasy Pros data for a list of players
+    :
+    :param str player_type: The type of player ('pitchers', 'hiters') being scraped
+    :
+    :return: a dataframe with data for all players from in_list 
+    :
+    ''' 
+    url = 'https://www.fantasypros.com/mlb/projections/{}.php'
+      
+    r               = requests.get(url.format(player_type))
+    soup            = BeautifulSoup(r.text, "html5lib")
+    with open("output1.html", "w", encoding='utf-8') as file:
+        file.write(str(soup))
+    
+    table_data      = soup.findAll("table")[0]
+    headers = [re.sub(r'\W+', '', header.text) for header in table_data.findAll('th')]
+    headers.extend(['Yahoo','ESPN'])
+    rows = []
+    for row in table_data.findAll("tr")[:1000]:
+        cells = row.findAll("td")
+        if len(cells) != 0:
+            for td in row.findAll("td"):       
+                sav2 = [td.getText() for td in row.findAll("td")] 
+            rows.append(sav2)      
+    
+    # Convert to datframe
+    df = pd.DataFrame(rows, columns=headers)
+    df['Team'] = df['Player'].str.split('(').str[1]   
+    df['Team'] = df['Team'].str.split('-').str[0] 
+    df['Player'] = df['Player'].str.split('(').str[0]   
         
-                         ]
-test_df = scrape_statcast_fromlist(in_list, 'pitcher')
-
-#df = scrape_fangraphs_leaders('bat', data_type = 'Advanced')
-
+    # Cleanup field data stypes
+    for column in df.columns:
+        if column in ['Player', 'Team']:
+            pass
+        elif column in [ 'AB', 'R', 'HR', 'RBI', 'SB',  'H', '2B', '3B','BB', 'SO']:
+           df[column] = df[column].astype(int)
+        elif  column in [  'AVG', 'OBP', 'SLG', 'OPS']:
+            df[column] = df[column].astype(float)
+        elif  column in [  'Rost', 'Yahoo', 'ESPN']:
+            df[column] = df[column].str[:-1]
+            df[column] = np.where(df[column]=="",
+                                  0,
+                                  df[column])
+            df[column] = df[column].astype(float)/100
+            
+    return df
 
 
 
