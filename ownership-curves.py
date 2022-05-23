@@ -1,0 +1,21 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu May 19 21:15:17 2022
+
+@author: rentz
+"""
+
+import stat_scraping 
+from datetime import datetime
+
+print("Start =",  datetime.now())
+
+date_string = format(datetime.now().strftime('%Y%m%d'), "1")
+
+hit_df = stat_scraping.get_fantasy_pros_proj(player_type = 'hitters')
+pit_df = stat_scraping.get_fantasy_pros_proj(player_type = 'pitchers')
+
+hit_df.to_csv('data/fp_proj_hit_{}.csv'.format(date_string), index = False)
+pit_df.to_csv('data/fp_proj_pit_{}.csv'.format(date_string), index = False)
+
+print("End =",  datetime.now())
