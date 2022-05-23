@@ -27,6 +27,7 @@ jobs:
               pip install requests
               pip install pandas
               pip install numpy
+              pip install html5lib
               #pip install re
               python ownership-curves.py
     
