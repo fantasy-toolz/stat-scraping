@@ -6,7 +6,7 @@ name: grab
 #on: push
 on:
       schedule:
-        - cron: '45 16 * * *'
+        - cron: '00 9 * * *'
 
 jobs:
       build:
