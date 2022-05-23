@@ -5,7 +5,7 @@ name: run data grab
 # Controls when the workflow will run
 on:
   schedule:
-    - cron:  '15 7 * * *'
+    - cron:  '35 8 * * *'
   
 jobs:
       build:
