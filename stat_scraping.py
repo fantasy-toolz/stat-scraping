@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 08 20:58:29 2019
-stat-scraping
+stat_scraping
 
 @author: Erich Rentz
 """
 
 import requests
-import sys
-if sys.platform == 'win32':
-    from BeautifulSoup import BeautifulSoup
-else:
-    from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
 import re
@@ -203,13 +199,18 @@ def get_fantasy_pros_proj(player_type = 'hitters'):
     
     table_data      = soup.findAll("table")[0]
     headers = [re.sub(r'\W+', '', header.text) for header in table_data.findAll('th')]
-    headers.extend(['Yahoo','ESPN'])
+    headers.extend(['Yahoo','ESPN', 'PlayerId'])
     rows = []
     for row in table_data.findAll("tr")[:1000]:
+        player_str = str(row)
+        player_id = player_str[:300].find('mpb-player-')
+        player_id = player_str[player_id+11:player_id+18].replace('"', '').replace(">", '').replace('<','')
+        # print(player_id, end = ", ")
         cells = row.findAll("td")
         if len(cells) != 0:
-            for td in row.findAll("td"):       
+            for td in cells:
                 sav2 = [td.getText() for td in row.findAll("td")] 
+                sav2.append(player_id)
             rows.append(sav2)      
     
     # Convert to datframe
