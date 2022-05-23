@@ -30,6 +30,8 @@ jobs:
               pip install html5lib
               #pip install re
               python ownership-curves.py
+          - name: set me up
+            run: git config --global erentz "Erich Rentz"
           - name: check for changes
             run: git status
           - name: stage changed files
