@@ -41,14 +41,11 @@ def UpdateOwnershipDB():
     own_df_list = []
     
     for data_date in ownership_csvs:
-        # print(data_date)
         # Create DFs
         dfHit = pd.read_csv(data_file.format('hit', data_date))  
         dfHit =dfHit.groupby(['Player', 'PlayerId'], as_index = False).max()
-        # dfHit = dfHit.loc[~(dfHit['PlayerId'].isin([4976, 7354,7812]))]
         dfPit = pd.read_csv(data_file.format('pit', data_date))
         dfPit = dfPit.groupby(['Player', 'PlayerId'], as_index = False).max()
-        # dfPit = dfPit.loc[~(dfPit['PlayerId'].isin([,7812]))]
         # Concat Hit and Pit
         df = pd.concat([dfHit, dfPit])
         df = df.groupby(['Player', 'PlayerId'], as_index = False).max()
@@ -94,7 +91,7 @@ def QueryPlayer(in_df, in_player):
     return out_df 
 
 def GraphPlayer(in_own_df, in_player):
-#    in_own_df, in_player = player_own_df, player
+    # in_own_df, in_player = own_df, 'Tyler Wells '
     myFmt = mdates.DateFormatter('%m.%d')
     fig, ax = plt.subplots()
     ax.tick_params(
@@ -115,72 +112,24 @@ def GraphPlayer(in_own_df, in_player):
     # Grab Ownership Data
     playerDF = QueryPlayer(in_own_df, in_player)
     plt.plot(playerDF['Day'], playerDF['Own'], '-', color= 'r', label = 'Ownership')
+    
+    # from scipy.interpolate import UnivariateSpline
+    # import numpy as np
+    # y_spl = UnivariateSpline(playerDF.index, playerDF['Own'], s = 0, k = 3)  
+    # plt.semilogy(playerDF.index, playerDF['Own'],'ro',label = 'data')
+    # x_range = np.linspace(playerDF.index[0],playerDF.index[-1],len(playerDF))
+    # plt.semilogy(x_range,y_spl(x_range))
+    # y_spl_2d = y_spl.derivative(n=2)
+    # plt.plot(x_range,y_spl_2d(x_range))
+    
     plt.title('{0} Ownership Graph'.format(in_player))
     plt.legend(loc=9, bbox_to_anchor=(0.5, -0.1), ncol=2)  #(loc='lower left')
+    
+    
+    
+    
     return fig
 
-# data_file = "data/fp_proj_{0}_{1}.csv"
-# hit_stats = stat_scraping.get_fantasy_pros_stats(player_type = 'hitters')
-# dfHit = pd.read_csv(data_file.format('hit', date_string))   
-# dfHit_pre = pd.read_csv(data_file.format('hit', '20220519')) 
-
-# def lim_hit_scope(in_df):
-#     in_df['R+RBI'] = in_df['R'] + in_df['RBI']   
-#     in_df['HR+SB'] = in_df['HR'] + in_df['SB']   
-#     in_df = in_df[['Player', 'PlayerId', 'R+RBI', 'HR+SB', 'H', 'Rost' ]]
-#     return in_df
-
-# dfHit = lim_hit_scope(dfHit)
-# hit_stats = lim_hit_scope(hit_stats)
-# hit_stats['PlayerId'] = hit_stats['PlayerId'].astype(int)
-# dfHit_pre = lim_hit_scope(dfHit_pre)
-
-# dfHit = pd.concat([dfHit, hit_stats])
-# dfHit = dfHit.groupby(['Player', 'PlayerId'], as_index = False).sum()
-# dfHit = dfHit.merge(dfHit_pre, how= 'left', on = ['Player', 'PlayerId'])
-# dfHit = dfHit.loc[dfHit['Rost_y']==dfHit['Rost_y']]
-
-# interesting_plus = []
-# for i in ['R+RBI_', 'HR+SB_', 'H_']:
-#     dfHit[i+'Delta'] = dfHit[i+'x'] - dfHit[i+'y']
-#     dfHit = dfHit.sort_values(by = [i+'Delta'])
-#     highest_climbers = list(dfHit[-5:]['Player'])
-#     interesting_plus.extend(highest_climbers)
-
-# interesting_plus = list(set(interesting_plus))
-
-# dfHit_interesting = dfHit.loc[dfHit['Player'].isin(interesting_plus)]
-
-# highest_climbers = list(own_df_sort[-10:]['Player'])
-# biggest_fallers = list(own_df_sort[:10]['Player'])
-
-
-# Main
-# own_df = UpdateOwnershipDB()
-
-# # mp_player1 = ['Albert Pujols ', 'Luis Urias ', 'Nathan Eovaldi ', 'Cal Quantrill ']
-# # for player in mp_player1:
-# #      print(player)
-# #      player_own_df = own_df.loc[own_df['Player']== player]
-# #      GraphPlayer(player_own_df, player)
-
-# ## Identify  biggest movers in previous week
-# ##
-# own_df['Delta'] = own_df['Own.{0}'.format(date_string)] - own_df['Own.{0}'.format(last_week)]
-# own_df_sort = own_df.sort_values(by = ['Delta'])
-# highest_climbers = list(own_df_sort[-10:]['Player'])
-# biggest_fallers = list(own_df_sort[:10]['Player'])
-
-# graphs = []
-# for player in highest_climbers:
-#     GraphPlayer(own_df, player)
-#     new_graph = 'graphs/{}.png'.format(player)
-#     plt.savefig(new_graph)
-#     im1 = Image.open(new_graph)
-#     graphs.append(im1)
-#     print(player, end = ", ")
-    
-    
 def get_concat_h(image_list):
     dst = Image.new('RGB', (image_list[0].width*2, image_list[0].height *3))
     dst.paste(image_list[0], (0, 0))
@@ -191,20 +140,8 @@ def get_concat_h(image_list):
     dst.paste(image_list[5], (image_list[0].width, image_list[0].height*2))
     return dst
 
-# get_concat_h(graphs).save('graphs/pillow_test.jpg')
-
-    
-# for player in biggest_fallers:
-#     GraphPlayer(own_df, player)
-#     print(player, end = ", ")
-# #
-# #own_df_98 = own_df.loc[own_df['Ownership.{0}'.format('20180601')]==98]
-
-
-# print("End =",  datetime.now())
-
-#
-
-# for player in interesting_plus:
-#     GraphPlayer(own_df, player)
-#     print(player, end = ", ")
+def lim_hit_scope(in_df):
+    in_df['R+RBI'] = in_df['R'] + in_df['RBI']   
+    in_df['HR+SB'] = in_df['HR'] + in_df['SB']   
+    in_df = in_df[['Player', 'PlayerId', 'R+RBI', 'HR+SB', 'H', 'Rost' ]]
+    return in_df
