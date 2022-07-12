@@ -124,10 +124,7 @@ def GraphPlayer(in_own_df, in_player):
     
     plt.title('{0} Ownership Graph'.format(in_player))
     plt.legend(loc=9, bbox_to_anchor=(0.5, -0.1), ncol=2)  #(loc='lower left')
-    
-    
-    
-    
+  
     return fig
 
 def get_concat_h(image_list):
@@ -144,4 +141,14 @@ def lim_hit_scope(in_df):
     in_df['R+RBI'] = in_df['R'] + in_df['RBI']   
     in_df['HR+SB'] = in_df['HR'] + in_df['SB']   
     in_df = in_df[['Player', 'PlayerId', 'R+RBI', 'HR+SB', 'H', 'Rost' ]]
+    return in_df
+
+def lim_pit_scope(in_df):
+    in_df['W+SV'] = in_df['W'].astype(int) + in_df['SV'].astype(int)  
+    in_df['IP'] = in_df['IP'].astype(float)
+    in_df['K'] = in_df['K'].astype(int)
+    max_ip = max(in_df['IP'])
+    max_wsv = max(in_df['W+SV'])
+    in_df['W+SV'] = in_df['W+SV']*max_ip/max_wsv
+    in_df = in_df[['Player', 'PlayerId', 'W+SV', 'IP', 'K', 'Rost' ]]
     return in_df
