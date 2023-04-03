@@ -21,8 +21,10 @@ last_week               = format((datetime.today() - timedelta(days=7)).strftime
 def UpdateOwnershipDB():
     data_file = "data/fp_proj_{0}_{1}.csv"
     # Grab New Data
-    hit_df = stat_scraping.get_fantasy_pros_proj(player_type = 'hitters')
-    pit_df = stat_scraping.get_fantasy_pros_proj(player_type = 'pitchers')
+    # hit_df = stat_scraping.get_fantasy_pros_proj(player_type = 'hitters')
+    # pit_df = stat_scraping.get_fantasy_pros_proj(player_type = 'pitchers')
+    hit_df = stat_scraping.get_fantasy_pros_proj('hitters', False)
+    pit_df = stat_scraping.get_fantasy_pros_proj('pitchers', False)
     hit_df.to_csv(data_file.format('hit', date_string), index = False)
     pit_df.to_csv(data_file.format('pit', date_string), index = False)
     # Find all ownership data files by day
