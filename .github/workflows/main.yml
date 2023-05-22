@@ -3,8 +3,8 @@
 name: grab
 
 # Controls when the workflow will run
-#on: push
-on:
+on: push
+#on:
 #      schedule:
 #        - cron: '00 9 * * *'
 
