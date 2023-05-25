@@ -31,7 +31,7 @@ jobs:
               #pip install re
               python ownership-curves.py
           - name: set me up
-            run:
+            run: |
                   git config --global user.name "Erich Rentz"
                   git config --global user.email "rentz.erich@gmail.com"
           - name: check for changes
