@@ -18,15 +18,16 @@ date_string     = format(datetime.now().strftime('%Y%m%d'), "1")
 ownership_db            = "data/ownership.csv"
 last_week               = format((datetime.today() - timedelta(days=7)).strftime('%Y%m%d'), "1")
 
-def UpdateOwnershipDB():
+def UpdateOwnershipDB(regen = True):
     data_file = "data/fp_proj_{0}_{1}.csv"
     # Grab New Data
     # hit_df = stat_scraping.get_fantasy_pros_proj(player_type = 'hitters')
     # pit_df = stat_scraping.get_fantasy_pros_proj(player_type = 'pitchers')
-    hit_df = stat_scraping.get_fantasy_pros_proj('hitters', False)
-    pit_df = stat_scraping.get_fantasy_pros_proj('pitchers', False)
-    hit_df.to_csv(data_file.format('hit', date_string), index = False)
-    pit_df.to_csv(data_file.format('pit', date_string), index = False)
+    if regen:
+        hit_df = stat_scraping.get_fantasy_pros_proj('hitters', False)
+        pit_df = stat_scraping.get_fantasy_pros_proj('pitchers', False)
+        hit_df.to_csv(data_file.format('hit', date_string), index = False)
+        pit_df.to_csv(data_file.format('pit', date_string), index = False)
     # Find all ownership data files by day
     data_files = os.listdir(os.path.join('data'))
     ownership_dict = {}
@@ -54,21 +55,28 @@ def UpdateOwnershipDB():
         # Get Columns formatted
         df.rename(columns={'Rost':'Own.'+str(data_date)}, inplace=True)
         df = df[['Player', 'Team', 'PlayerId', 'Own.'+str(data_date)]]
+        if len(df.loc[df['PlayerId']==44593]):
+            # print(data_date,sep=', ')
+            pass
         own_df_list.append(df)    
     #
     #   Update Ownership CSV
     #
     # Create Ownership DataFrame remove extra fields
     own_df = own_df_list[0]
+    own_df = own_df.drop(['Team'], axis=1)
     # Add each day of ownership to DataFrame
     for df in own_df_list[1:]:
-        df = df[df.columns[2:]]
-        own_df = own_df.merge(df, on = ['PlayerId'], how = 'outer')
+        df = df.drop(['Team'], axis=1)
+        own_df = own_df.merge(df, on = ['Player', 'PlayerId'], how = 'outer')
+        if len(own_df.loc[own_df['PlayerId']==44593]):
+            # print(df.columns[-1],sep=', ')
+            pass
     
     # own_df_test = own_df.groupby(['Player', 'PlayerId'], as_index = False)['Team'].count()
     
     # Clean DataFrame by filling nulls with zeros 
-    for column in own_df.columns[3:]:
+    for column in own_df.columns[2:]:
         own_df[column] = own_df[column].fillna(0)
     own_df = own_df.loc[own_df['Player']==own_df['Player']]
     own_df.to_csv(ownership_db.format(date_string), index=False)
@@ -76,7 +84,7 @@ def UpdateOwnershipDB():
     return own_df
 
 def QueryPlayer(in_df, in_player):
-#    in_df, in_player = player_own_df, player
+    # in_df, in_player = own_df, player
     days = []
     for column in in_df.columns[3:]:
         if column != 'Delta':# <---- make sure you add new columsn here
@@ -93,7 +101,7 @@ def QueryPlayer(in_df, in_player):
     return out_df 
 
 def GraphPlayer(in_own_df, in_player):
-    # in_own_df, in_player = own_df, 'Tyler Wells '
+    # in_own_df, in_player = own_df, 'Joey Wiemer '
     myFmt = mdates.DateFormatter('%m.%d')
     fig, ax = plt.subplots()
     ax.tick_params(

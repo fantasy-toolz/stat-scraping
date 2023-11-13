@@ -12,8 +12,8 @@ print("Start =",  datetime.now())
 
 date_string = format(datetime.now().strftime('%Y%m%d'), "1")
 
-hit_df = stat_scraping.get_fantasy_pros_proj('hitters', False)
-pit_df = stat_scraping.get_fantasy_pros_proj('pitchers', False)
+hit_df = stat_scraping.get_fantasy_pros_proj('hitters', True)
+pit_df = stat_scraping.get_fantasy_pros_proj('pitchers', True)
 
 hit_df.to_csv('data/fp_proj_hit_{}.csv'.format(date_string), index = False)
 pit_df.to_csv('data/fp_proj_pit_{}.csv'.format(date_string), index = False)
