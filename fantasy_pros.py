@@ -3,13 +3,13 @@ import re
 import pandas as pd
 from bs4 import BeautifulSoup
 import requests
-import datetime
+from datetime import datetime
 import os                       
 
 
 ### Create Eligibility DF
 def get_eligibility(in_positions, in_player):
-    in_positions, in_player = position, row['PlayerTeamPosition']
+    # in_positions, in_player = position, row['PlayerTeamPosition']
     position_dict = {
         'RP': 0, 'C':0, '3B':0, '2B':0, 'SS':0, '1B':0, 'CF':0, 'LF':0, 'OF':0, 'DH':0, 'RF':0, 'SP':0
         }
@@ -31,8 +31,8 @@ def create_overall_ranks_welig():
     url             = "https://www.fantasypros.com/mlb/rankings/{0}.php"
     r               = requests.get(url.format("overall"))
     soup            = BeautifulSoup(r.text, "html5lib")
-    # with open("output1.html", "w", encoding='utf-8') as file:
-    #     file.write(str(soup))
+    with open("output69.html", "w", encoding='utf-8') as file:
+        file.write(str(soup))
     table_data      = soup.find("table", { "class" : "table table-bordered table-condensed player-table table-striped table-hover"})
     headers = [re.sub(r'\W+', '', header.text) for header in table_data.findAll('th')]
     
@@ -104,12 +104,13 @@ def create_overall_ranks_welig():
     overall_ranks_df['bat'] = overall_ranks_df['bat'].fillna(0)
     overall_ranks_df['pit'] = overall_ranks_df['pit'].fillna(0)
     
-    date_string = format(datetime.datetime.now().strftime('%Y%m%d'), "1")
+    date_string = format(datetime.now().strftime('%Y%m%d'), "1")
     elig_csv_template = "fantasy_pros_ranks_elig_{}.csv"
     out_csv = os.path.join("data", elig_csv_template.format(date_string))
     overall_ranks_df.to_csv(out_csv , index = False)
     return overall_ranks_df
 
+# overall_ranks_df = create_overall_ranks_welig()
 # last_csv = os.path.join("data", elig_csv_template.format('20231218'))
 
 # last_ranks_df = pd.read_csv(last_csv)
