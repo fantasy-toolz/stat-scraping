@@ -191,7 +191,7 @@ def get_fantasy_pros_proj(player_type = 'hitters', preseason = False):
     :return: a dataframe with data for all players
     :
     '''
-    # player_type, preseason = 'hitters', True
+    # player_type, preseason = 'hitters', False
     url = 'https://www.fantasypros.com/mlb/projections/ros-{}.php'
     if preseason:
        url = 'https://www.fantasypros.com/mlb/projections/{}.php'
