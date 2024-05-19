@@ -14,11 +14,11 @@ jobs:
     
         steps:
           - name: checkout repo content
-            uses: actions/checkout@v2 # checkout the repository content to github runner.
+            uses: actions/checkout@v4 # checkout the repository content to github runner.
           - name: setup python
-            uses: actions/setup-python@v2
+            uses: actions/setup-python@v4
             with:
-              python-version: 3.8 #install the python needed
+              python-version: 3.9 #install the python needed
               
           - name: execute py script # run the run.py to get the latest data
             run: |
@@ -31,7 +31,9 @@ jobs:
               #pip install re
               python ownership-curves.py
           - name: set me up
-            run: git config --global user.name "erentz"
+            run: |
+                  git config --global user.name "Erich Rentz"
+                  git config --global user.email "rentz.erich@gmail.com"
           - name: check for changes
             run: git status
           - name: stage changed files

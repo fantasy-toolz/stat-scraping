@@ -1,2 +1,12 @@
+
+output1.html
+output1.html
+__pycache__/ownership_curve.cpython-37.pyc
+*.png
+__pycache__/ownership_curve.cpython-39.pyc
+__pycache__/stat_scraping.cpython-39.pyc
+__pycache__/stat_scraping.cpython-39.pyc
+.github/workflows/main.yml.bak
+
 __pycache__/*
 *.ipynb

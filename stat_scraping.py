@@ -182,7 +182,7 @@ def scrape_statcast_fromlist(in_list, player_type):
     return output_df
 
 
-def get_fantasy_pros_proj(player_type = 'hitters'):
+def get_fantasy_pros_proj(player_type = 'hitters', preseason = False):
     '''
     Scrape Fantasy Pros data for rest of season projections and current roster%
     :
@@ -191,7 +191,10 @@ def get_fantasy_pros_proj(player_type = 'hitters'):
     :return: a dataframe with data for all players
     :
     '''
+    # player_type, preseason = 'hitters', False
     url = 'https://www.fantasypros.com/mlb/projections/ros-{}.php'
+    if preseason:
+       url = 'https://www.fantasypros.com/mlb/projections/{}.php'
 
     r               = requests.get(url.format(player_type))
     soup            = BeautifulSoup(r.text, "html5lib")
@@ -200,7 +203,9 @@ def get_fantasy_pros_proj(player_type = 'hitters'):
 
     table_data      = soup.findAll("table")[0]
     headers = [re.sub(r'\W+', '', header.text) for header in table_data.findAll('th')]
-    headers.extend(['Yahoo','ESPN', 'PlayerId'])
+    if not preseason:
+        headers.extend(['Yahoo','ESPN'])
+    headers.append('PlayerId')
     rows = []
     for row in table_data.findAll("tr")[:1000]:
         player_str = str(row)
@@ -289,5 +294,49 @@ def get_fantasy_pros_stats(player_type = 'hitters'):
                                   0,
                                   df[column])
             df[column] = df[column].astype(float)/100
+
+    return df
+
+def get_fantasy_pros_rank():
+    '''
+    Scrape Fantasy Pros data for rest of season projections and current roster%
+    :
+    :param str player_type: The type of player ('pitchers', 'hiters') being scraped
+    :
+    :return: a dataframe with data for all players
+    :
+    '''
+    #player_type, preseason = 'hitters', True
+    url = 'https://www.fantasypros.com/mlb/rankings/overall.php'
+
+    r               = requests.get(url)
+    soup            = BeautifulSoup(r.text, "html5lib")
+    with open("output1.html", "w", encoding='utf-8') as file:
+        file.write(str(soup))
+
+    table_data      = soup.findAll("table")[0]
+    headers = [re.sub(r'\W+', '', header.text) for header in table_data.findAll('th')]
+    # if not preseason:
+    #     headers.extend(['Yahoo','ESPN'])
+    headers.append('PlayerId')
+    rows = []
+    for row in table_data.findAll("tr")[:1000]:
+        player_str = str(row)
+        player_id = player_str[:300].find('mpb-player-')
+        player_id = player_str[player_id+11:player_id+16].replace('"', '').replace(">", '').replace('<','')
+        # print(player_id, end = ", ")
+        cells = row.findAll("td")
+        if len(cells) != 0:
+            for td in cells:
+                sav2 = [td.getText() for td in row.findAll("td")]
+                sav2.append(player_id)
+            rows.append(sav2)
+
+    # Convert to datframe
+    df = pd.DataFrame(rows, columns=headers)
+    df['Team'] = df['PlayerTeamPosition'].str.split('(').str[1]
+    df['Team'] = df['Team'].str.split('-').str[0]
+    df['Player'] = df['PlayerTeamPosition'].str.split('(').str[0]
+
 
     return df
