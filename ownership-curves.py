@@ -19,7 +19,7 @@ pit_df = stat_scraping.get_fantasy_pros_proj('pitchers', False)
 hit_df.to_csv('data/fp_proj_hit_{}.csv'.format(date_string), index = False)
 pit_df.to_csv('data/fp_proj_pit_{}.csv'.format(date_string), index = False)
 
-overall_ranks_df = fp.create_overall_ranks_welig()
+# overall_ranks_df = fp.create_overall_ranks_welig()
 
 
 print("End =",  datetime.now())
