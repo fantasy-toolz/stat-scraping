@@ -4,9 +4,9 @@ name: grab
 
 # Controls when the workflow will run
 #on: push
-on:
-      schedule:
-        - cron: '00 9 * * *'
+#on:
+#      schedule:
+#        - cron: '00 9 * * *'
 
 jobs:
       build:
