@@ -8,5 +8,9 @@ __pycache__/stat_scraping.cpython-39.pyc
 __pycache__/stat_scraping.cpython-39.pyc
 .github/workflows/main.yml.bak
 
-__pycache__/*
+*__pycache__/*
 *.ipynb
+*.DS_Store
+
+batcast/__pycache__/*
+src/__pycache__/*
