@@ -2,12 +2,6 @@
 import numpy as np
 
 
-teams = ['LAA', 'HOU', 'OAK', 'TOR', 'ATL', 'MIL', 'STL','CHC', 'AZ', 'LAD', 'SF', 'CLE', 'SEA', 'MIA','NYM', 'WSH', 'BAL', 'SD', 'PHI', 'PIT', 'TEX','TB', 'BOS', 'CIN', 'COL', 'KC', 'DET', 'MIN','CWS', 'NYY']
-
-
-# create a dictionary
-
-
 
 def analyze_team_batting_order(year,team):
     PositionTotal = dict()
@@ -34,5 +28,19 @@ def analyze_team_batting_order(year,team):
 
 
 #PositionTotal,PlrTeam,TeamTotal = analyze_team_batting_order(year,team)
+
+def analyze_all_teams(year):
+    teams = ['LAA', 'HOU', 'OAK', 'TOR', 'ATL', 'MIL', 'STL','CHC', 'AZ', 'LAD', 'SF', 'CLE', 'SEA', 'MIA','NYM', 'WSH', 'BAL', 'SD', 'PHI', 'PIT', 'TEX','TB', 'BOS', 'CIN', 'COL', 'KC', 'DET', 'MIN','CWS', 'NYY']
+    AllPlayers = dict()
+    for team in teams:
+        PositionTotal = analyze_team_batting_order(year,team)
+        for player in PositionTotal.keys():
+            try:
+                AllPlayers[player] += PositionTotal[player]
+            except:
+                AllPlayers[player] = PositionTotal[player]
+    return AllPlayers
+
+
 
 

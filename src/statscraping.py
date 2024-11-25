@@ -20,3 +20,9 @@ def get_fantasytoolz_lineups(team,year='2024'):
     if int(year)<2023:
         raise ValueError('Year must be 2023 or later.') 
     return fts.analyze_team_batting_order(year,team)
+
+
+def get_alllineupes(year):
+    if int(year)<2023:
+        raise ValueError('Year must be 2023 or later.') 
+    return fts.analyze_all_teams('2024')
