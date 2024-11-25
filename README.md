@@ -3,6 +3,20 @@
 
 Scraping capabilities for several major MLB and Fantasy MLB sources, consolidated under one interface.
 
+## FantasyToolz
+
+To scrape batting order statistics for a team,
+
+```python
+from src import statscraping as ss
+
+year = '2024'
+team = 'ATL'
+
+ss.get_fantasytoolz_lineups(team,year)
+```
+
+
 ## Fangraphs
 
 As an example scraper,
