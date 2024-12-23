@@ -33,6 +33,10 @@ def grab_fangraphs_hitting_data(years,daystart='',dayend=''):
 
         # Great, our Data is in a list of lists: much more pythonic. Let's birth a pandas table!
         df = pd.DataFrame(rows, columns=headers)
+
+        # clean the DF
+        df = df.loc[df['G'].astype(float) > 0]
+
         df['Year'] = year
         year_dfs.append(df)
 
@@ -64,6 +68,10 @@ def grab_fangraphs_pitching_data(years,daystart='',dayend=''):
 
         # Great, our Data is in a list of lists: much more pythonic. Let's birth a pandas table!
         df = pd.DataFrame(rows, columns=headers)
+
+        # clean the DF
+        df = df.loc[df['G'].astype(float) > 0]
+        
         df['Year'] = year
         year_dfs.append(df)
 
