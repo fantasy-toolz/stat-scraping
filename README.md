@@ -13,7 +13,8 @@ from src import statscraping as ss
 year = '2024'
 team = 'ATL'
 
-ss.get_fantasytoolz_lineups(team,year)
+ATL = ss.get_fantasytoolz_lineups(team,year)
+AllPlayers = ss.get_alllineupes(year)
 ```
 
 
