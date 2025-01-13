@@ -33,13 +33,30 @@ def get_fantasypros_projections(playertype,preseason=False):
     return fps.get_fantasy_pros_proj(playertype,preseason)
 
 
-def get_fantasytoolz_lineups(team,year='2024'):
-    if int(year)<2023:
-        raise ValueError('Year must be 2023 or later.') 
+"""
+Fantasy Toolz block
+"""
+
+def get_fantasytoolz_lineups(team,year=2024):
+    if int(year)<2021:
+        raise ValueError('Year must be 2021 or later.') 
     return fts.analyze_team_batting_order(year,team)
 
 
-def get_alllineupes(year):
-    if int(year)<2023:
-        raise ValueError('Year must be 2023 or later.') 
-    return fts.analyze_all_teams('2024')
+def get_fantasytoolz_lineup_summary(year):
+    if int(year)<2021:
+        raise ValueError('Year must be 2021 or later.') 
+    return fts.analyze_all_teams(year)
+
+
+def get_fantasytoolz_date_lineups(date):
+    return fts.get_date_lineups(date)
+
+def get_fantasytoolz_team_lineup(year,team):
+    return fts.get_team_lineup(year,team)
+
+def get_fantasytoolz_all_lineups(year):
+    return fts.get_all_lineups(year)
+
+def get_fantasytoolz_date_matchups(date):
+    return fts.get_date_matchups(date)

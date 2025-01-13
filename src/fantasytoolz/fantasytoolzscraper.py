@@ -1,5 +1,6 @@
 
 import numpy as np
+import pandas as pd
 
 
 
@@ -29,7 +30,23 @@ def analyze_team_batting_order(year,team):
 
 #PositionTotal,PlrTeam,TeamTotal = analyze_team_batting_order(year,team)
 
+def get_all_lineups(year):
+    AllLineups = pd.read_csv('https://raw.githubusercontent.com/fantasy-toolz/batting-order/refs/heads/main/data/Aggregate/{}-all-lineups.csv'.format(year))
+    return AllLineups
+
+def get_team_lineup(year,team):
+    AllLineups = get_all_lineups(year)
+    TeamLineups = AllLineups[AllLineups['team']==team]
+    return TeamLineups
+
+def get_date_lineups(date):
+    year = date.split('-')[0]
+    AllLineups = get_all_lineups(year)
+    DateLineups = AllLineups[AllLineups['date']==date]
+    return DateLineups
+
 def analyze_all_teams(year):
+    """ # this is the manual solution: we now have a consolidated version
     teams = ['LAA', 'HOU', 'OAK', 'TOR', 'ATL', 'MIL', 'STL','CHC', 'AZ', 'LAD', 'SF', 'CLE', 'SEA', 'MIA','NYM', 'WSH', 'BAL', 'SD', 'PHI', 'PIT', 'TEX','TB', 'BOS', 'CIN', 'COL', 'KC', 'DET', 'MIN','CWS', 'NYY']
     AllPlayers = dict()
     for team in teams:
@@ -40,7 +57,24 @@ def analyze_all_teams(year):
             except:
                 AllPlayers[player] = PositionTotal[player]
     return AllPlayers
+    """
+    if int(year) < 2021:
+        raise ValueError('Year must be 2021 or later.')
+    AllPlayers = pd.read_csv('https://raw.githubusercontent.com/fantasy-toolz/batting-order/refs/heads/main/data/Aggregate/Summaries/{}player-batting-order.csv'.format(year))
+    return AllPlayers
 
 
+def get_date_matchups(date,postfacto=False):
+    year = date.split('-')[0]
 
+    # first look to see if validation is available?
 
+    if postfacto:
+        valid = 'validation'
+    else:
+        valid = ''
+
+    AllMatchups = pd.read_csv('https://raw.githubusercontent.com/fantasy-toolz/mlb-predictions/refs/heads/main/predictions/archive/{}/{}{}.csv'.format(year,date,valid))
+
+    Matchups = AllMatchups[AllMatchups['date']==date]
+    return Matchups
