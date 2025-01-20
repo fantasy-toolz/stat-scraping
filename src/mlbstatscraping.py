@@ -1,8 +1,8 @@
 
 
-from .fangraphs import fangraphsscraper as fgs
-from .fantasypros import fantasyprosscraper as fps
-from .fantasytoolz import fantasytoolzscraper as fts
+from fangraphs import fangraphsscraper as fgs
+from fantasypros import fantasyprosscraper as fps
+from fantasytoolz import fantasytoolzscraper as fts
 
 def get_fangraphs_data(playertype, years, daystart='', dayend=''):
     # Validate playertype

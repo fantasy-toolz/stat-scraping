@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlbstatscraping"
+version = "2.0"
+description = "A fantasy baseball-oriented stat scraping tool"
+authors = [{ name = "Michael Petersen", email = "fantasytoolz@gmail.com" }]
+license = { text = "New BSD" }
+dependencies = [
+    "numpy>=1.7",
+    "pandas",
+    "matplotlib",
+    "beautifulsoup4"
+]
+

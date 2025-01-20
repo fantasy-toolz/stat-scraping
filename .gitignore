@@ -18,3 +18,7 @@ src/__pycache__/*
 raw.githubusercontent.com/*
 
 src/fantasytoolz/__pycache__/*
+
+src/*egg*
+
+build/

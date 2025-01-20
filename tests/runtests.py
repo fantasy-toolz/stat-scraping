@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from src import statscraping as ss
+from . import mlbstatscraping as ss
 
 
 #HittingDF = ss.get_fangraphs_data('hitting',['2024'])
