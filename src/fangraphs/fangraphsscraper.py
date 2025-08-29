@@ -34,7 +34,11 @@ def grab_fangraphs_hitting_data(years,daystart='',dayend=''):
         # Great, our Data is in a list of lists: much more pythonic. Let's birth a pandas table!
         df = pd.DataFrame(rows, columns=headers)
 
-        # clean the DF
+        # Convert all columns except 'Name' and 'Team' to float
+        for col in df.columns:
+            if col not in ['Name', 'Team']:
+                df[col] = pd.to_numeric(df[col], errors='coerce') # clean the DF
+
         df = df.loc[df['G'].astype(float) > 0]
 
         df['Year'] = year
@@ -69,6 +73,11 @@ def grab_fangraphs_pitching_data(years,daystart='',dayend=''):
         # Great, our Data is in a list of lists: much more pythonic. Let's birth a pandas table!
         df = pd.DataFrame(rows, columns=headers)
 
+        # Convert all columns except 'Name' and 'Team' to float
+        for col in df.columns:
+            if col not in ['Name', 'Team']:
+                df[col] = pd.to_numeric(df[col], errors='coerce') # clean the DF
+                
         # clean the DF
         df = df.loc[df['G'].astype(float) > 0]
         

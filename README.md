@@ -80,6 +80,10 @@ Get projections from FantasyPros:
 
 ```python
 import mlbstatscraping as mss
+HittingDF = mss.get_fantasypros_projections('hitters',preseason=True)
+```
 
-HittingDF = mss.get_fantasypros_projections(playertype,preseason=True)
+Get the consensus draft order:
+```python
+DraftOrder = mss.get_fantasy_pros_rank()
 ```

@@ -33,6 +33,9 @@ def get_fantasypros_projections(playertype,preseason=False):
     return fps.get_fantasy_pros_proj(playertype,preseason)
 
 
+#def get_fantasypros_ranks():
+#    return fps.get_fantasy_pros_rank()
+
 """
 Fantasy Toolz block
 """
