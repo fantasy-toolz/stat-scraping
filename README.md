@@ -6,8 +6,11 @@ Scraping capabilities for several major MLB and Fantasy MLB sources, consolidate
 
 ### Installation
 
-After obtaining the repository from GitHub, install with 
-
+After obtaining the repository from GitHub,
+```bash
+git clone git@github.com:fantasy-toolz/stat-scraping.git
+```
+install with 
 ```bash
 pip install .
 ```

@@ -7,18 +7,18 @@ import pandas as pd
 import os
 import numpy as np
 
-def grab_fangraphs_hitting_data(years,daystart='',dayend=''):
+def grab_fangraphs_hitting_data(years,daystart='',dayend='',verbose=False):
     """get fangraphs hitting data for a given year"""
     url      =   "https://www.fangraphs.com/leaders-legacy.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season={0}&month=1000&season1={0}&ind=0&team=0&rost=0&age=0&filter&startdate={1}&enddate={2}&players=0&page=1_1000"
 
     year_dfs = []
 
     for year in years:
-        print('The year is {}'.format(year))
+        if verbose:
+            print('The year is {}'.format(year))
+        
         r               = requests.get(url.format(year,daystart,dayend))
-        #r               = requests.get(year_url)
 
-        #soup            = BeautifulSoup(r.content, "html5lib")
         soup            = BeautifulSoup(r.text, "html5lib")
         table_data      = soup.find("table", { "class" : "rgMasterTable"})
 
@@ -42,6 +42,11 @@ def grab_fangraphs_hitting_data(years,daystart='',dayend=''):
         df = df.loc[df['G'].astype(float) > 0]
 
         df['Year'] = year
+
+        # strip trailing spaces from player names and teams
+        df['Name'] = df['Name'].str.rstrip()
+        df['Team'] = df['Team'].str.rstrip()
+
         year_dfs.append(df)
 
     df = year_dfs[0]
@@ -50,13 +55,15 @@ def grab_fangraphs_hitting_data(years,daystart='',dayend=''):
     return df
 
 
-def grab_fangraphs_pitching_data(years,daystart='',dayend=''):
+def grab_fangraphs_pitching_data(years,daystart='',dayend='',verbose=False):
     url      =   "https://www.fangraphs.com/leaders-legacy.aspx?pos=all&stats=pit&lg=all&qual=0&type=0&season={0}&month=1000&season1={0}&ind=0&team=0&rost=0&age=0&filter=&startdate={1}&enddate={2}&players=0&page=1_1000"
 
     year_dfs = []
 
     for year in years:
-        print('The year is {}'.format(year))
+        if verbose:
+            print('The year is {}'.format(year))
+
         r               = requests.get(url.format(year,daystart,dayend))
         soup            = BeautifulSoup(r.text, "html5lib")
         table_data      = soup.find("table", { "class" : "rgMasterTable"})
@@ -82,6 +89,11 @@ def grab_fangraphs_pitching_data(years,daystart='',dayend=''):
         df = df.loc[df['G'].astype(float) > 0]
         
         df['Year'] = year
+
+        # strip trailing spaces from player names and teams
+        df['Name'] = df['Name'].str.rstrip()
+        df['Team'] = df['Team'].str.rstrip()
+
         year_dfs.append(df)
 
     df = year_dfs[0]
