@@ -3,7 +3,7 @@
 name: grab
 
 # Controls when the workflow will run
-#on: push
+on: push
 #on:
 #      schedule:
 #        - cron: '00 9 * * *'
@@ -40,8 +40,8 @@ jobs:
             run: git add .
           - name: commit changed files
             run: git commit -m "bot update"
-          - name: fetch from master
-            run: git fetch origin master
-          - name: push code to master
-            run: git push origin HEAD:master
+          - name: fetch from main
+            run: git fetch origin main
+          - name: push code to main
+            run: git push origin HEAD:main
     
