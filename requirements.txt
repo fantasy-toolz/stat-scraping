@@ -1,0 +1,8 @@
+numpy==1.26.4
+pytest==9.0.1
+json
+requests
+beautifulsoup4
+pandas
+coverage
+-e .
