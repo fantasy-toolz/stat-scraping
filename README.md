@@ -1,6 +1,6 @@
 # stat-scraping
 ## FantasyToolz
-## v2.0
+## v2.1
 
 Scraping capabilities for several major MLB and Fantasy MLB sources, consolidated under one interface.
 

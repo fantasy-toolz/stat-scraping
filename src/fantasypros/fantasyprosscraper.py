@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
 import re
+import json
 
 
 
@@ -30,8 +31,10 @@ def get_fantasy_pros_proj(player_type = 'hitters', preseason = False):
 
     r               = requests.get(url.format(player_type))
     soup            = BeautifulSoup(r.text, "html5lib")
-    with open("output1.html", "w", encoding='utf-8') as file:
-        file.write(str(soup))
+    
+    # deep diagnostic code
+    #with open("output1.html", "w", encoding='utf-8') as file:
+    #    file.write(str(soup))
 
     table_data      = soup.findAll("table")[0]
     headers = [re.sub(r'\W+', '', header.text) for header in table_data.findAll('th')]
@@ -129,6 +132,7 @@ def get_fantasy_pros_stats(player_type = 'hitters'):
 
     return df
 
+
 def get_fantasy_pros_rank():
     '''
     Scrape Fantasy Pros data for rest of season projections and current roster%
@@ -143,32 +147,12 @@ def get_fantasy_pros_rank():
 
     r               = requests.get(url)
     soup            = BeautifulSoup(r.text, "html5lib")
-    with open("output1.html", "w", encoding='utf-8') as file:
-        file.write(str(soup))
 
-    table_data      = soup.findAll("table")[0]
-    headers = [re.sub(r'\W+', '', header.text) for header in table_data.findAll('th')]
-    # if not preseason:
-    #     headers.extend(['Yahoo','ESPN'])
-    headers.append('PlayerId')
-    rows = []
-    for row in table_data.findAll("tr")[:1000]:
-        player_str = str(row)
-        player_id = player_str[:300].find('mpb-player-')
-        player_id = player_str[player_id+11:player_id+16].replace('"', '').replace(">", '').replace('<','')
-        # print(player_id, end = ", ")
-        cells = row.findAll("td")
-        if len(cells) != 0:
-            for td in cells:
-                sav2 = [td.getText() for td in row.findAll("td")]
-                sav2.append(player_id)
-            rows.append(sav2)
+    m = re.search(r'var\s+ecrData\s*=\s*(\{.*?\});', soup.text, re.S)
+    ecr_data = json.loads(m.group(1)) if m else None
+    #print(ecr_data['players'][0])
+    #'rank_ecr','rank_min','rank_max','rank_ave','rank_std','pos_rank'
 
-    # Convert to datframe
-    df = pd.DataFrame(rows, columns=headers)
-    df['Team'] = df['PlayerTeamPosition'].str.split('(').str[1]
-    df['Team'] = df['Team'].str.split('-').str[0]
-    df['Player'] = df['PlayerTeamPosition'].str.split('(').str[0]
-
-
-    return df
+    ecr_df = pd.DataFrame(ecr_data.get('players', []))
+    #ecr_df.head()
+    return ecr_df
