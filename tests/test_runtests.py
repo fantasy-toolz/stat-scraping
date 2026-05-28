@@ -1,57 +1,112 @@
-import pytest
-import numpy as np
-
-import mlbstatscraping as ss
-
-
-import pytest
-import numpy as np
 import pandas as pd
+import pytest
+
 import mlbstatscraping as ss
 
-@pytest.fixture
-def hitting_data():
-    """Fixture to get hitting data for 2024."""
-    return ss.get_fangraphs_data('hitting', ['2024'])
-
 
 @pytest.fixture
-def pitching_data():
-    """Fixture to get pitching data for 2024."""
-    return ss.get_fangraphs_data('pitching', ['2024'])
+def sample_hitting_data():
+    return pd.DataFrame(
+        {
+            "Name": ["Mookie Betts"],
+            "Team": ["LAD"],
+            "Season": [2024],
+            "G": [116],
+            "PA": [516],
+            "HR": [19],
+        }
+    )
 
 
-def test_get_fangraphs_data_hitting_returns_dataframe(hitting_data):
-    """Test that hitting data returns a DataFrame."""
-    assert isinstance(hitting_data, pd.DataFrame)
-    assert len(hitting_data) > 0
+@pytest.fixture
+def sample_pitching_data():
+    return pd.DataFrame(
+        {
+            "Name": ["Tarik Skubal"],
+            "Team": ["DET"],
+            "season": [2024],
+            "G": [31],
+            "IP": [192.0],
+            "SO": [228],
+        }
+    )
 
 
-def test_get_fangraphs_data_pitching_returns_dataframe(pitching_data):
-    """Test that pitching data returns a DataFrame."""
-    assert isinstance(pitching_data, pd.DataFrame)
-    assert len(pitching_data) > 0
+def test_get_fangraphs_data_hitting_calls_hitting_scraper(
+    monkeypatch, sample_hitting_data
+):
+    calls = []
+
+    def fake_hitting_scraper(years, daystart="", dayend=""):
+        calls.append((years, daystart, dayend))
+        return sample_hitting_data
+
+    monkeypatch.setattr(ss.fgs, "grab_fangraphs_hitting_data", fake_hitting_scraper)
+
+    result = ss.get_fangraphs_data(
+        "hitting", ["2024"], daystart="2024-04-01", dayend="2024-05-01"
+    )
+
+    pd.testing.assert_frame_equal(result, sample_hitting_data)
+    assert calls == [(["2024"], "2024-04-01", "2024-05-01")]
 
 
-def test_invalid_stat_type_raises_error():
-    """Test that invalid stat type raises ValueError."""
-    with pytest.raises(ValueError):
-        ss.get_fangraphs_data('invalid_type', ['2024'])
+def test_get_fangraphs_data_pitching_calls_pitching_scraper(
+    monkeypatch, sample_pitching_data
+):
+    calls = []
+
+    def fake_pitching_scraper(years, daystart="", dayend=""):
+        calls.append((years, daystart, dayend))
+        return sample_pitching_data
+
+    monkeypatch.setattr(ss.fgs, "grab_fangraphs_pitching_data", fake_pitching_scraper)
+
+    result = ss.get_fangraphs_data("pitching", ["2024"])
+
+    pd.testing.assert_frame_equal(result, sample_pitching_data)
+    assert calls == [(["2024"], "", "")]
 
 
-def test_multiple_years(hitting_data):
-    """Test retrieving data for multiple years."""
-    multi_year = ss.get_fangraphs_data('hitting', ['2023', '2024'])
-    assert isinstance(multi_year, pd.DataFrame)
-    assert len(multi_year) > len(hitting_data)
+def test_invalid_stat_type_raises_error(monkeypatch):
+    def scraper_should_not_be_called(*args, **kwargs):
+        raise AssertionError("Fangraphs scraper should not be called")
+
+    monkeypatch.setattr(
+        ss.fgs, "grab_fangraphs_hitting_data", scraper_should_not_be_called
+    )
+    monkeypatch.setattr(
+        ss.fgs, "grab_fangraphs_pitching_data", scraper_should_not_be_called
+    )
+
+    with pytest.raises(ValueError, match="Invalid playertype"):
+        ss.get_fangraphs_data("invalid_type", ["2024"])
 
 
-def test_hitting_data_has_expected_columns(hitting_data):
-    """Test that hitting data contains expected columns."""
-    assert len(hitting_data.columns) > 0
-    assert 'Name' in hitting_data.columns or 'Player' in hitting_data.columns
+def test_daystart_year_must_match_requested_years(monkeypatch):
+    def scraper_should_not_be_called(*args, **kwargs):
+        raise AssertionError("Fangraphs scraper should not be called")
+
+    monkeypatch.setattr(
+        ss.fgs, "grab_fangraphs_hitting_data", scraper_should_not_be_called
+    )
+
+    with pytest.raises(ValueError, match=r"daystart year \(2023\)"):
+        ss.get_fangraphs_data("hitting", ["2024"], daystart="2023-04-01")
 
 
-def test_pitching_data_has_expected_columns(pitching_data):
-    """Test that pitching data contains expected columns."""
-    assert len(pitching_data.columns) > 0
+def test_daystart_year_can_match_any_requested_year(monkeypatch, sample_hitting_data):
+    calls = []
+
+    def fake_hitting_scraper(years, daystart="", dayend=""):
+        calls.append((years, daystart, dayend))
+        return sample_hitting_data
+
+    monkeypatch.setattr(ss.fgs, "grab_fangraphs_hitting_data", fake_hitting_scraper)
+
+    result = ss.get_fangraphs_data(
+        "hitting", ["2023", "2024"], daystart="2023-04-01"
+    )
+
+    pd.testing.assert_frame_equal(result, sample_hitting_data)
+    assert calls == [(["2023", "2024"], "2023-04-01", "")]

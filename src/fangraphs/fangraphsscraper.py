@@ -7,45 +7,108 @@ import pandas as pd
 import os
 import numpy as np
 
+def _strip_html(value):
+    """Return cell text with any embedded HTML tags removed."""
+    if pd.isna(value):
+        return value
+    return BeautifulSoup(str(value), "html.parser").get_text(strip=True)
+
+
+def _clean_name_team_columns(df):
+    for col in ['Name', 'Team']:
+        if col in df.columns:
+            df[col] = df[col].map(_strip_html)
+    return df
+
+
 def grab_fangraphs_hitting_data(years,daystart='',dayend='',verbose=False):
     """get fangraphs hitting data for a given year"""
-    url      =   "https://www.fangraphs.com/leaders-legacy.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season={0}&month=1000&season1={0}&ind=0&team=0&rost=0&age=0&filter&startdate={1}&enddate={2}&players=0&page=1_1000"
 
     year_dfs = []
 
     for year in years:
-        if verbose:
-            print('The year is {}'.format(year))
-        
-        r               = requests.get(url.format(year,daystart,dayend))
+        url = "https://www.fangraphs.com/api/leaders/major-league/data"
 
-        soup            = BeautifulSoup(r.text, "html5lib")
-        table_data      = soup.find("table", { "class" : "rgMasterTable"})
+        params = {
+            "pos": "all",
+            "stats": "bat",
+            "lg": "all",
+            "qual": "0",
+            "type": "0",
+            "season": str(year),
+            "season1": str(year),
+            "month": "1000",
+            "ind": "0",
+            "team": "0",
+            "rost": "0",
+            "age": "0",
+            "filter": "",
+            "players": "0",
+            "startdate": f"{year}-01-01",
+            "enddate": f"{year}-12-31",
 
-        headers = [header.text for header in table_data.findAll('th')]
-        rows = []
-        for row in table_data.findAll("tr"):
-            cells = row.findAll("td")
-            if len(cells) != 0:
-                for td in row.findAll("td"):
-                    sav2 = [td.getText() for td in row.findAll("td")]
-                rows.append(sav2)
+            # sorting
+            "sortstat": "PA",      # or whatever column index 3 maps to
+            "sortdir": "default",
 
+            # pagination
+            "pageitems": "10000",
+            "pagenum": "1",
+
+            # often present
+            "postseason": ""
+        }
+
+        r = requests.get(url, params=params)
+        r.raise_for_status()
+
+        data = r.json()["data"]
+
+        # make a subset selection
+        columns = [
+            'Name',
+            'Team',
+            'Season',
+            'Age',
+            'G',
+            'AB',
+            'PA',
+            'H',
+            '1B',
+            '2B',
+            '3B',
+            'HR',
+            'R',
+            'RBI',
+            'BB',
+            'IBB',
+            'SO',
+            'HBP',
+            'SF',
+            'SH',
+            'GDP',
+            'SB',
+            'CS',
+            'AVG',
+            'GB',
+            'FB',
+            'LD',
+        ]
+
+        df = pd.DataFrame(data, columns=columns)
         # Great, our Data is in a list of lists: much more pythonic. Let's birth a pandas table!
-        df = pd.DataFrame(rows, columns=headers)
+        #df = pd.DataFrame(rows, columns=headers)
+        df = _clean_name_team_columns(df)
 
         # Convert all columns except 'Name' and 'Team' to float
         for col in df.columns:
             if col not in ['Name', 'Team']:
                 df[col] = pd.to_numeric(df[col], errors='coerce') # clean the DF
 
+        # trim anyone who didn't actually play
         df = df.loc[df['G'].astype(float) > 0]
 
         df['Year'] = year
-
-        # strip trailing spaces from player names and teams
-        df['Name'] = df['Name'].str.rstrip()
-        df['Team'] = df['Team'].str.rstrip()
 
         year_dfs.append(df)
 
@@ -56,48 +119,97 @@ def grab_fangraphs_hitting_data(years,daystart='',dayend='',verbose=False):
 
 
 def grab_fangraphs_pitching_data(years,daystart='',dayend='',verbose=False):
-    url      =   "https://www.fangraphs.com/leaders-legacy.aspx?pos=all&stats=pit&lg=all&qual=0&type=0&season={0}&month=1000&season1={0}&ind=0&team=0&rost=0&age=0&filter=&startdate={1}&enddate={2}&players=0&page=1_1000"
+    """get fangraphs pitching data for a given year"""
 
     year_dfs = []
 
     for year in years:
-        if verbose:
-            print('The year is {}'.format(year))
+        url = "https://www.fangraphs.com/api/leaders/major-league/data"
 
-        r               = requests.get(url.format(year,daystart,dayend))
-        soup            = BeautifulSoup(r.text, "html5lib")
-        table_data      = soup.find("table", { "class" : "rgMasterTable"})
+        params = {
+            "pos": "all",
+            "stats": "pit",
+            "lg": "all",
+            "qual": "0",
+            "type": "0",
+            "season": str(year),
+            "season1": str(year),
+            "month": "1000",
+            "ind": "0",
+            "team": "0",
+            "rost": "0",
+            "age": "0",
+            "filter": "",
+            "players": "0",
+            "startdate": f"{year}-01-01",
+            "enddate": f"{year}-12-31",
 
-        headers = [header.text for header in table_data.findAll('th')]
-        rows = []
-        for row in table_data.findAll("tr"):
-            cells = row.findAll("td")
-            if len(cells) != 0:
-                for td in row.findAll("td"):
-                    sav2 = [td.getText() for td in row.findAll("td")]
-                rows.append(sav2)
+            # sorting
+            "sortstat": "IP",      # or whatever column index 3 maps to
+            "sortdir": "default",
 
+            # pagination
+            "pageitems": "10000",
+            "pagenum": "1",
+
+            # often present
+            "postseason": ""
+        }
+
+        r = requests.get(url, params=params)
+        r.raise_for_status()
+
+        data = r.json()["data"]
+
+        # make a subset selection
+        columns = [
+            'season',
+            'Name',
+            'Team',
+            'Age',
+            'W',
+            'L',
+            'ERA',
+            'G',
+            'GS',
+            'QS',
+            'CG',
+            'ShO',
+            'SV',
+            'HLD',
+            'BS',
+            'IP',
+            'TBF',
+            'H',
+            'R',
+            'ER',
+            'HR',
+            'BB',
+            'IBB',
+            'HBP',
+            'WP',
+            'BK',
+            'SO',
+        ]
+
+        df = pd.DataFrame(data, columns=columns)
         # Great, our Data is in a list of lists: much more pythonic. Let's birth a pandas table!
-        df = pd.DataFrame(rows, columns=headers)
+        #df = pd.DataFrame(rows, columns=headers)
+        df = _clean_name_team_columns(df)
 
         # Convert all columns except 'Name' and 'Team' to float
         for col in df.columns:
             if col not in ['Name', 'Team']:
                 df[col] = pd.to_numeric(df[col], errors='coerce') # clean the DF
-                
-        # clean the DF
-        df = df.loc[df['G'].astype(float) > 0]
-        
-        df['Year'] = year
 
-        # strip trailing spaces from player names and teams
-        df['Name'] = df['Name'].str.rstrip()
-        df['Team'] = df['Team'].str.rstrip()
+        # trim anyone who didn't actually play
+        df = df.loc[df['G'].astype(float) > 0]
+
+        df['Year'] = year
 
         year_dfs.append(df)
 
     df = year_dfs[0]
     for year in year_dfs[1:]:
         df = pd.concat([df, year])
-
     return df

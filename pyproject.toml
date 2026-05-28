@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mlbstatscraping"
-version = "2.1"
+version = "2.1.1"
 description = "A fantasy baseball-oriented stat scraping tool"
 authors = [{ name = "Michael Petersen", email = "fantasytoolz@gmail.com" }]
 license = { text = "New BSD" }
@@ -12,6 +12,9 @@ dependencies = [
     "numpy>=1.7",
     "pandas",
     "matplotlib",
-    "beautifulsoup4"
+    "beautifulsoup4",
+    "requests"
 ]
 
+[tool.pytest.ini_options]
+pythonpath = ["src"]
