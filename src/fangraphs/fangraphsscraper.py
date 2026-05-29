@@ -21,13 +21,18 @@ def _clean_name_team_columns(df):
     return df
 
 
-def grab_fangraphs_hitting_data(years,daystart='',dayend='',verbose=False):
+def _fangraphs_date_range(year, daystart='', dayend=''):
+    return daystart or f"{year}-01-01", dayend or f"{year}-12-31"
+
+
+def grab_fangraphs_hitting_data(years,daystart='',dayend='',verbose=False,advanced=False):
     """get fangraphs hitting data for a given year"""
 
     year_dfs = []
 
     for year in years:
         url = "https://www.fangraphs.com/api/leaders/major-league/data"
+        startdate, enddate = _fangraphs_date_range(year, daystart, dayend)
 
         params = {
             "pos": "all",
@@ -44,8 +49,8 @@ def grab_fangraphs_hitting_data(years,daystart='',dayend='',verbose=False):
             "age": "0",
             "filter": "",
             "players": "0",
-            "startdate": f"{year}-01-01",
-            "enddate": f"{year}-12-31",
+            "startdate": startdate,
+            "enddate": enddate,
 
             # sorting
             "sortstat": "PA",      # or whatever column index 3 maps to
@@ -95,7 +100,10 @@ def grab_fangraphs_hitting_data(years,daystart='',dayend='',verbose=False):
             'LD',
         ]
 
-        df = pd.DataFrame(data, columns=columns)
+        if advanced:
+            df = pd.DataFrame(data)
+        else:
+            df = pd.DataFrame(data, columns=columns)
         # Great, our Data is in a list of lists: much more pythonic. Let's birth a pandas table!
         #df = pd.DataFrame(rows, columns=headers)
         df = _clean_name_team_columns(df)
@@ -118,13 +126,14 @@ def grab_fangraphs_hitting_data(years,daystart='',dayend='',verbose=False):
     return df
 
 
-def grab_fangraphs_pitching_data(years,daystart='',dayend='',verbose=False):
+def grab_fangraphs_pitching_data(years,daystart='',dayend='',verbose=False,advanced=False):
     """get fangraphs pitching data for a given year"""
 
     year_dfs = []
 
     for year in years:
         url = "https://www.fangraphs.com/api/leaders/major-league/data"
+        startdate, enddate = _fangraphs_date_range(year, daystart, dayend)
 
         params = {
             "pos": "all",
@@ -141,8 +150,8 @@ def grab_fangraphs_pitching_data(years,daystart='',dayend='',verbose=False):
             "age": "0",
             "filter": "",
             "players": "0",
-            "startdate": f"{year}-01-01",
-            "enddate": f"{year}-12-31",
+            "startdate": startdate,
+            "enddate": enddate,
 
             # sorting
             "sortstat": "IP",      # or whatever column index 3 maps to
@@ -192,7 +201,10 @@ def grab_fangraphs_pitching_data(years,daystart='',dayend='',verbose=False):
             'SO',
         ]
 
-        df = pd.DataFrame(data, columns=columns)
+        if advanced:
+            df = pd.DataFrame(data)
+        else:
+            df = pd.DataFrame(data, columns=columns)
         # Great, our Data is in a list of lists: much more pythonic. Let's birth a pandas table!
         #df = pd.DataFrame(rows, columns=headers)
         df = _clean_name_team_columns(df)

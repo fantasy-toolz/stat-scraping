@@ -4,7 +4,7 @@ from fangraphs import fangraphsscraper as fgs
 from fantasypros import fantasyprosscraper as fps
 from fantasytoolz import fantasytoolzscraper as fts
 
-def get_fangraphs_data(playertype, years, daystart='', dayend=''):
+def get_fangraphs_data(playertype, years, daystart='', dayend='', advanced=False):
     # Validate playertype
     if playertype not in {'hitting', 'pitching'}:
         raise ValueError("Invalid playertype. Must be 'hitting' or 'pitching'.")
@@ -21,9 +21,9 @@ def get_fangraphs_data(playertype, years, daystart='', dayend=''):
     
     # Fetch data based on playertype
     if playertype == 'hitting':
-        df = fgs.grab_fangraphs_hitting_data(years, daystart, dayend)
+        df = fgs.grab_fangraphs_hitting_data(years, daystart, dayend, advanced=advanced)
     elif playertype == 'pitching':
-        df = fgs.grab_fangraphs_pitching_data(years, daystart, dayend)
+        df = fgs.grab_fangraphs_pitching_data(years, daystart, dayend, advanced=advanced)
     
     return df
 
